@@ -10,6 +10,7 @@ from std_msgs.msg import *
 
 rospy.init_node("Boun_Perception")
 shape_to_publisher_dict=dict()
+shape_to_pose_publisher_dict=dict()
 frame_to_broadcaster_dict=dict()
 def processShapePolygonList(data):
     shapeString = data.data
@@ -19,7 +20,9 @@ def processShapePolygonList(data):
             br = tf.TransformBroadcaster()
             frame_to_broadcaster_dict[shape]=br
             pub = rospy.Publisher("/Shapes/"+shape, PolygonStamped,queue_size=1)
+            pub2 = rospy.Publisher("/"+shape+"/pose", PoseStamped,queue_size=1)
             shape_to_publisher_dict[shape]=pub
+            shape_to_pose_publisher_dict[shape]=pub2
             rospy.Subscriber("/vrep_ros_interface/Shapes/"+shape, Polygon, broadcastShapePolygon,(shape))
 def processShapePoseList(data):
     shapeString = data.data
@@ -91,12 +94,32 @@ def broadcastShapePolygon(data,shape):
         newPoint.y=point.y-aver_y
         newPoint.z=point.z-aver_z
         points.append(newPoint)
+
     msg=PolygonStamped()
     msg.header=h
     polygon.points=points
     msg.polygon=polygon
     pub=shape_to_publisher_dict[shape]
     pub.publish(msg)
+    pose=Pose()
+    pose.position=Point()
+    pose.position.x=aver_x
+    pose.position.y=aver_y
+    pose.position.z=aver_z
+    pose.orientation=Quaternion()
+    pose.orientation.x=0
+    pose.orientation.y=0
+    pose.orientation.z=0
+    pose.orientation.w=1
+    msg=PoseStamped()
+    h = std_msgs.msg.Header()
+    h.stamp = rospy.Time.now()
+    h.frame_id="world"
+    msg.header=h
+    msg.pose=pose
+    pub2=shape_to_pose_publisher_dict[shape]
+    pub2.publish(msg)
+
 
 rospy.Subscriber("/Shape_Polygon_List", String, processShapePolygonList)
 rospy.Subscriber("/Shape_Pose_List", String, processShapePoseList)
