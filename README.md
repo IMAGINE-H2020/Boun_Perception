@@ -25,7 +25,11 @@ With boun perception, 4 V-rep models are provided.
 * HDDModel2.ttm
 * shapePublisher.ttm : This publishes some messages necessary for boun perception.
 * screwRemover.ttm : Contains shortcut function which removes all screws in the scene.
+* sceneLoader.ttm : Loads 8 different scenes using signals.
 
-You need to load one of the HDDmodels (but not both of them). You also need to load shapePublisher and screwRemover(Optional). After that, when you run Boun perception, it will provide simple shape polygons of PCB, Case, HDD and position of screws. 
+### Steps
+1. Load shapePublisher,screwRemover,sceneLoader in your scene.
+2. Run boun perception preparePolygons.
+3. You can load different scenes using sceneLoader script. You need to update path to Hdd models in the given variable.
 
-Currently, functionality of screws are designed around UIBK's workspace.
+This will provide you positions of HDD parts. Currently, functionality of screws are designed around UIBK's workspace.
